@@ -1,0 +1,40 @@
+/* Provide sufficient contrast against white background */
+.black{
+    width: 100px;
+    height: 100px;
+    background-color: rgb(41, 32, 32);
+    color: darkblue
+}
+.red{
+    width: 100px;
+    height: 100px;
+    background-color: red;}
+.white {
+    width: 100px;
+    height: 100px;
+    color: green;
+    background-color: white;
+}
+.pieceImg{height: 100px;aspect-ratio: 100px; object-fit: contain;}
+.chooseModal{
+display: grid;
+align-content: center;
+justify-self: center;
+justify-content:start;
+
+grid-template-columns: 1fr 1fr ;
+grid-gap: 20px;
+width: 220px;
+}
+.chooseOverlay{position: absolute;top: 0;left: 0;right: 0;bottom: 0;
+    height: 800px;
+    justify-self: start;
+    width: 800px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    justify-content:center;
+    
+background-color:rgba(0, 0, 0, 0.5);
+}
+.chooseButton{width: 100px; height: 100px}
