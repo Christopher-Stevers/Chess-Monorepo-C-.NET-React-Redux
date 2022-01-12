@@ -13,6 +13,7 @@ export interface BoardState {
   currentPiece: any;
   turn: any;
   win: any;
+  checkStatus: any
 }
 
 // -----------------
@@ -73,6 +74,7 @@ export const reducer: Reducer<BoardState> = (
       currentPiece: { piece: "" },
       turn: { color: "white" },
       win: { color: "" },
+      checkStatus: {check: false},
       board: [
         [
           {

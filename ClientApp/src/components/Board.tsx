@@ -24,7 +24,7 @@ class Board extends React.PureComponent<BoardProps> {
         return (
             <React.Fragment>
                 <h1>Board</h1>
-
+                <p>Check? {this.props.checkStatus.check.toString()}</p>
                 <p>{capitalize(this.props.turn.color)}{(this.props.win.color)? " already won.":`'s turn.`} </p>
 
                   <div className="board">
