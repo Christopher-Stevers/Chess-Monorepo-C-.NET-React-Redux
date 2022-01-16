@@ -32,7 +32,6 @@ const BoardPlace: FC<props> = ({
       showWin(turn.color);
   }
   function handlePlaceClick() {
-      console.log(currentPiece, turn)
     if (currentPiece.piece&&title.available==="yes"&&currentPiece.color===turn.color) {
       moveToPlace(index, outerIndex);
     } else showAvailable(index, outerIndex);
@@ -43,7 +42,6 @@ const BoardPlace: FC<props> = ({
         return arr[input];
     }*/
   const handlePawnClick = (e:any) => {
-    console.log(e.target.alt);
     pawnTransform(e.target.alt);
   };
   return (
@@ -82,7 +80,7 @@ const BoardPlace: FC<props> = ({
             src={`chessPieces/${title.color + title.piece}.png`}
           ></img>
         )
-      )}
+      )}<span>{`${index } ${outerIndex}`}</span>
     </div>
   );
 };

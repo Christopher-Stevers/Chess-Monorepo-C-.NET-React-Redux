@@ -74,7 +74,8 @@ export const reducer: Reducer<BoardState> = (
       currentPiece: { piece: "" },
       turn: { color: "white" },
       win: { color: "" },
-      checkStatus: {check: false},
+      checkStatus: {check: false,
+      checkMate: false},
       board: [
         [
           {
