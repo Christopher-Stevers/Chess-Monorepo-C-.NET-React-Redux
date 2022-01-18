@@ -1,6 +1,4 @@
-import { EMLINK } from "constants";
-import { relative } from "path";
-
+import defaultData from './default'
 const withinBoard = (x: number) => {
   return 0 <= x && x <= 7;
 };
@@ -45,62 +43,6 @@ const scanObstruct = (state: any, payload: any) => {
     d3: scanIndie(-1, 1)[0],
     d4: scanIndie(-1, -1)[0],
   };
-};
-const legalPawn = (
-  currentX: number,
-  currentY: number,
-  pieceX: number,
-  pieceY: number,
-  innerElem: any,
-  color: string,
-  nextPiece: string
-) => {
-  const playingDir = color === "white" ? -1 : 1;
-  if (
-    (currentX === pieceX &&
-      innerElem.piece === "" &&
-      (currentY === pieceY + playingDir ||
-        //double move
-        (((pieceY === 1 && currentY === pieceY + 2 && color === "black") ||
-          (pieceY === 6 && currentY === pieceY - 2 && color === "white")) &&
-          nextPiece === ""))) ||
-    ((currentX === pieceX + 1 || currentX === pieceX - 1) &&
-      innerElem.piece !== "" &&
-      currentY === pieceY + playingDir &&
-      color !== innerElem.color &&
-      innerElem.color)
-  ) {
-    return true;
-  }
-};
-const legalRook = (
-  currentX: number,
-  currentY: number,
-  pieceX: number,
-  pieceY: number,
-  d1: number,
-  d2: number,
-  d3: number,
-  d4: number
-) => {
-  return (
-    (currentY === pieceY && d1 <= currentX && currentX <= d2) ||
-    (currentX === pieceX && d3 <= currentY && currentY <= d4)
-  );
-};
-const legalKnight = (
-  currentX: number,
-  currentY: number,
-  pieceX: number,
-  pieceY: number
-) => {
-  if (
-    Math.abs(currentX - pieceX) + Math.abs(currentY - pieceY) === 3 &&
-    Math.abs(currentX - pieceX) < 3 &&
-    Math.abs(currentY - pieceY) < 3
-  ) {
-    return true;
-  }
 };
 const knightMoves = (x: number, y: number) => {
   return [
@@ -157,7 +99,7 @@ const rookMoves = (
     i++;
   }
   let j = y1;
-  while (j < y2) {
+  while (j <=y2) {
     if (y !== j) availableArr.push([x, j]);
     j++;
   }
@@ -204,27 +146,6 @@ const pawnMoves = (
   }
   return availableArr;
 };
-const legalBishop = (
-  currentX: number,
-  currentY: number,
-  pieceX: number,
-  pieceY: number,
-  d1: number,
-  d2: number,
-  d3: number,
-  d4: number
-) => {
-  if (
-    (pieceX - currentX === pieceY - currentY &&
-      d1 >= currentX &&
-      currentX >= d4) ||
-    (pieceX - currentX === -pieceY + currentY &&
-      d3 <= currentX &&
-      currentX <= d2)
-  ) {
-    return true;
-  } else return false;
-};
 const availableMoves = (
   x: number,
   y: number,
@@ -254,169 +175,44 @@ const availableMoves = (
       return [];
   }
 };
-const relativeAvailable = (
-  currentX: number,
-  currentY: number,
-  pieceX: number,
-  pieceY: number,
-  color: string,
-  innerElem: any,
-  obstructionObject: any,
-  piece: any,
-  nextPiece: string
-) => {
-  const { x1, x2, y1, y2, x1y1, x2y1, x1y2, x2y2 } = obstructionObject;
-  //can't move to own color.
-  if ((currentX === pieceX && currentY === pieceY) || color === innerElem.color)
-    return false;
-  switch (piece) {
-    case "king":
-      return (
-        pieceX - 1 <= currentX &&
-        currentX <= pieceX + 1 &&
-        pieceY - 1 <= currentY &&
-        currentY <= pieceY + 1
-      );
-    case "pawn":
-      return legalPawn(
-        currentX,
-        currentY,
-        pieceX,
-        pieceY,
-        innerElem,
-        color,
-        nextPiece
-      );
-    case "bishop":
-      return legalBishop(
-        currentX,
-        currentY,
-        pieceX,
-        pieceY,
-        x1y1[0],
-        x2y1[0],
-        x1y2[0],
-        x2y2[0]
-      );
-    case "rook":
-      return legalRook(
-        currentX,
-        currentY,
-        pieceX,
-        pieceY,
-        x1[0],
-        x2[0],
-        y1[1],
-        y2[1]
-      );
-    case "queen":
-      return (
-        legalRook(
-          currentX,
-          currentY,
-          pieceX,
-          pieceY,
-          x1[0],
-          x2[0],
-          y1[1],
-          y2[1]
-        ) ||
-        legalBishop(
-          currentX,
-          currentY,
-          pieceX,
-          pieceY,
-          x1y1[0],
-          x2y1[0],
-          x1y2[0],
-          x2y2[0]
-        )
-      );
-    case "knight":
-      return legalKnight(currentX, currentY, pieceX, pieceY);
-    default:
-      return false;
-  }
-  /*
-        //Handle every place it can go.
-        return (
-          (piece === "pawn" &&
-           )) ||
-          ((piece === "bishop" || piece === "queen") &&
-            ) ||
-          ((piece === "rook" || piece === "queen") &&
-            ) ||
-          (legalKnight(currentX, currentY, pieceX, pieceY) && piece === "knight")
-        )
-*/
-};
 
-export const checkForCheck = (state: any, payload: any) => {
+const checkForCheck = (state: any, payload: any) => {
   const [x, y] = payload;
+  if (typeof x !== "number") {
+    return true;
+  }
   const { color } = state.board[y][x];
   const obstructionObject = scanObstruct(state, payload);
-  const doublePawnY = color === "white" ? 5 : 2;
-  const nextPiece = state.board[doublePawnY][x].piece;
   let check = false;
   const attackDir = color === "white" ? -1 : 1;
-  const checkArr = [];
   const { d1, d2, d3, d4, x1, y1, x2, y2 } = obstructionObject;
   const rookKing = rookMoves(x, y, x1[0], y1[1], x2[0], y2[1]);
   const bishopKing = bishopMoves(x, y, d1, d2, d3, d4);
-  console.log(bishopKing)
   const knightKing = knightMoves(x, y);
   const pawnKing = pawnMoves(x, y, attackDir, d1, d2, d3, d4, y1, y2);
-  console.log(payload)
-  //console.log("input", payload[0], payload[1])
   const myForEach = (testingArr: any, testingPiece: any) => {
     let inDanger = false;
     testingArr.forEach((elem: any, index: number) => {
-      //console.log("run",elem[0], elem[1])
       if (withinBoard(elem[0]) && withinBoard(elem[1]) && !inDanger) {
-        // console.log(testingPiece,state.board[elem[1]][elem[0]].piece,state.board[elem[1]][elem[0]].color,color)
         if (
           testingPiece === state.board[elem[1]][elem[0]].piece &&
           state.board[elem[1]][elem[0]].color !== color
         ) {
-          console.log("exec");
           inDanger = true;
         }
       }
     });
     return inDanger;
   };
- check =
+  check =
     myForEach(rookKing, "rook") ||
     myForEach(bishopKing, "bishop") ||
     myForEach(rookKing.concat(bishopKing), "queen") ||
     myForEach(knightKing, "knight") ||
     myForEach(pawnKing, "pawn");
-
-  state.board.forEach((elem: any, index: number) => {
-    elem.forEach((innerElem: any, innerIndex: number) => {
-      if (
-        relativeAvailable(
-          innerIndex,
-          index,
-          x,
-          y,
-          color,
-          innerElem,
-          obstructionObject,
-          innerElem.piece,
-          nextPiece
-        ) &&
-        innerElem.piece !== color
-      ) {
-        //check = true;
-      }
-    });
-  });
   return check;
 };
 
-const legalQueen = () => {};
-const legalKing = () => {};
 export const tranformToPawn = (state: any, payload: string) => {
   return {
     ...state,
@@ -434,24 +230,120 @@ export const tranformToPawn = (state: any, payload: string) => {
 export const setWin = (state: any, payload: string) => {
   return { ...state, win: { color: payload } };
 };
+const checkForCheckMate = (newState: any) => {
+  const potentialStateAndChecks = (state: any, payload: [number, number]) => {
+    const [x, y] = payload;
+    const { piece, color } = state.board[y][x];
+    //check for obstructions in the possible paths.
+
+    //execute scanObstruct
+    const obstructionObject = scanObstruct(state, payload);
+    const attackDir = color === "black" ? 1 : -1;
+    const possibleAttacks = availableMoves(
+      x,
+      y,
+      piece,
+      obstructionObject,
+      attackDir,
+      state.board
+    );
+    const potentialState = {
+      ...state,
+      currentPiece: { piece, color, x, y },
+      board: state.board.map((elem: any, index: number) =>
+        elem.map((innerElem: any, innerIndex: number) => {
+          //if moves kings, deal with it. if moved kings queen style los, deal with it.
+          if (
+            possibleAttacks.find((elem: any) => {
+              return elem[0] === innerIndex && elem[1] === index;
+            }) &&
+            innerElem.color !== color
+          ) {
+            return {
+              ...innerElem,
+              available: "yes",
+            };
+          } else {
+            return {
+              ...innerElem,
+              available: "no",
+            };
+          }
+        })
+      ),
+    };
+    const checkArr: any[] = [];
+    possibleAttacks.forEach((attackArr: any) => {
+      if (withinBoard(attackArr[0]) && withinBoard(attackArr[1])) {
+        const potentialBoardState = returnAvailableState(
+          potentialState,
+          attackArr
+        );
+        const testingY = potentialBoardState.board.findIndex((array: any) => {
+          return array.find((elem: any) => {
+            return elem.piece === "king" && elem.color === state.turn.color;
+          });
+        });
+        if (testingY >= 0) {
+          const testingX = potentialBoardState.board[testingY].findIndex(
+            (elem: any) => {
+              return elem.piece === "king" && elem.color === state.turn.color;
+            }
+          );
+          if (checkForCheck(potentialBoardState, [testingX, testingY])) {
+            checkArr.push(attackArr);
+          }
+        }
+      }
+    });
+    return [potentialState.board, checkArr];
+  };
+  const areThereSomeAvailableSpots = newState.board.some(
+    (elem: any, index: number) => {
+      //are there any boards with possilbe non checks.
+      return elem.some((innerElem: any, innerIndex: number) => {
+        if (innerElem.color === newState.turn.color) {
+          const [potentialBoardState, potentialCheckArr] =
+            potentialStateAndChecks(newState, [innerIndex, index]);
+          //are there any non-checks on that possible board?
+          const potentialBoardHasNonChecks = potentialBoardState.some(
+            (elem: any, index: number) => {
+              //are there any nonchecks on that file.
+              return elem.some((innerElem: any, innerIndex: number) => {
+                //are there any non-checks available in on that?
+                return (
+                  innerElem.available === "yes" &&
+                  !potentialCheckArr.some((elem: any) => {
+                    return compareTuple(elem, [innerIndex, index]);
+                  })
+                );
+              });
+            }
+          );
+          return potentialBoardHasNonChecks;
+        }
+        else return false
+      });
+    }
+  );
+
+  return !areThereSomeAvailableSpots;
+};
 //check if move is legal and set available accordingly.
 export const showAllAvailableSpots = (
   state: any,
   payload: [number, number]
 ) => {
+  if(state.board.checkMate){
+    return state;
+  }
   const [x, y] = payload;
-  const board = state.board;
   const { piece, color } = state.board[y][x];
-  const otherOption = (x: any, a: any, b: any) => {
-    return x === a ? a : b;
-  };
   //check for obstructions in the possible paths.
 
   //execute scanObstruct
   const obstructionObject = scanObstruct(state, payload);
-  const doublePawnY = color === "white" ? 5 : 2;
   const attackDir = color === "black" ? 1 : -1;
-  const nextPiece = state.board[doublePawnY][x].piece;
   const possibleAttacks = availableMoves(
     x,
     y,
@@ -460,7 +352,6 @@ export const showAllAvailableSpots = (
     attackDir,
     state.board
   );
-  const { d1, d2, d3, d4, x1, y1, x2, y2 } = obstructionObject;
   const potentialState = {
     ...state,
     currentPiece: { piece, color, x, y },
@@ -488,116 +379,59 @@ export const showAllAvailableSpots = (
   };
   const checkArr: any[] = [];
   possibleAttacks.forEach((attackArr: any) => {
-    let intoCheck = false;
     if (withinBoard(attackArr[0]) && withinBoard(attackArr[1])) {
       const potentialBoardState = moveToAvailableSpot(
         potentialState,
         attackArr
       );
-console.log(potentialBoardState.board)
       const testingY = potentialBoardState.board.findIndex((array: any) => {
         return array.find((elem: any) => {
           return elem.piece === "king" && elem.color === state.turn.color;
         });
       });
-      console.log(testingY)
-      if(testingY>=0){
-      const testingX = potentialBoardState.board[testingY].findIndex(
-        (elem: any) => {
-          return elem.piece === "king" && elem.color === state.turn.color;
+      if (testingY >= 0) {
+        const testingX = potentialBoardState.board[testingY].findIndex(
+          (elem: any) => {
+            return elem.piece === "king" && elem.color === state.turn.color;
+          }
+        );
+        if (checkForCheck(potentialBoardState, [testingX, testingY])) {
+          checkArr.push(attackArr);
         }
-      );
-      if (checkForCheck(potentialBoardState, [testingX, testingY])) {
-        checkArr.push(attackArr);
       }
     }
-  }
   });
 
-  console.log(checkArr);
-  const returnedState= {
+  const returnedState = {
     ...potentialState,
 
     board: potentialState.board.map((elem: any, index: number) => {
-     return  elem.map((innerElem: any, innerIndex: number) => {
-        console.log(
+      return elem.map((innerElem: any, innerIndex: number) => {
+        if (
           checkArr.some((checkTuple: any) => {
             return compareTuple([innerIndex, index], checkTuple);
-          })
-        );
-        if (
-          (checkArr.some((checkTuple: any) => {
-            return compareTuple([innerIndex, index], checkTuple);
-          })&&potentialState.currentPiece.color===potentialState.turn.color)
-        ){
+          }) &&
+          potentialState.currentPiece.color === potentialState.turn.color
+        ) {
           return {
             ...innerElem,
             available: "no",
-          };}
-        else
+          };
+        } else
           return {
             ...innerElem,
           };
       });
     }),
   };
-  console.log(returnedState);
   return returnedState;
-  /*
-      
-        if (
-          relativeAvailable(
-            innerIndex,
-            index,
-            x,
-            y,
-            color,
-            innerElem,
-            obstructionObject,
-            piece,
-            nextPiece
-          )
-        ) {
-          const potentialState = {
-            ...state,
-            turn: { color: otherOption(color, "white", "black") },
-            board: state.board.map((elem: any, testingIndex: number) => {
-              return elem.map(
-                (innerTestingElem: any, innerTestingIndex: number) => {
-                  if (innerTestingIndex === x && testingIndex === y) {
-                    return { piece: "" };
-                  }
-                  if (
-                    innerTestingIndex === innerIndex &&
-                    testingIndex === index
-                  ) {
-                    return state.board[y][x];
-                  } else return innerTestingElem;
-                }
-              );
-            }),
-          };
-*/
-  /* const testingY = potentialState.board.findIndex((array: any) => {
-    return array.find((elem: any) => {
-      return elem.piece === "king" && elem.color === state.turn.color;
-    });
-  });
-  if (testingY < 0) return { ...innerElem, available: "no" };
-  const testingX = potentialState.board[testingY].findIndex((elem: any) => {
-    return elem.piece === "king" && elem.color === state.turn.color;
-  });
-  if (
-    false //checkForCheck(potentialState, [testingX, testingY]            )
-  ) {
-    //return { ...innerElem, available: "no" };
-  } else return { ...innerElem, available: "yes" };*/
 };
 
 //If move is legal execute move.
-export const moveToAvailableSpot = (state: any, payload: [number, number]) => {
+export const returnAvailableState = (state: any, payload: [number, number]) => {
+  //payload is target boardPlace
   const [x, y] = payload;
-  const newState = {
+  return {
     board: state.board.map((elem: any, index: number) =>
       elem.map((innerElem: any, innerIndex: number) => {
         // Check if we can move there.
@@ -629,17 +463,38 @@ export const moveToAvailableSpot = (state: any, payload: [number, number]) => {
 
     turn: { color: state.turn.color === "white" ? "black" : "white" },
     win: "",
+    checkStatus: { check: false, checkMate: false },
   };
-  const testingY = newState.board.findIndex((array: any) => {
-    return array.find((elem: any) => {
-      return elem.piece === "king" && elem.color !== state.turn.color;
-    });
-  });
-  const testingX = newState.board[testingY].findIndex((elem: any) => {
+};
+export const moveToAvailableSpot = (state: any, payload: any) => {
+  if(state.board.checkMate){
+    return state;
+  }
+  const potentialState = returnAvailableState(state, payload);
+  const testingY =
+    state.board.findIndex((array: any) => {
+      return array.find((elem: any) => {
+        return elem.piece === "king" && elem.color !== state.turn.color;
+      });
+    }) || 0;
+  const testingX = state.board[testingY].findIndex((elem: any) => {
     return elem.piece === "king" && elem.color !== state.turn.color;
   });
-  const inCheck = false; //checkForCheck(newState, [testingX, testingY]);
-  let checkMate = false;
-
-  return { ...newState, checkStatus: { check: inCheck, checkMate } };
+  if (checkForCheck(potentialState, [testingX, testingY])) {
+    if (checkForCheckMate(potentialState)) {
+      return {
+        ...potentialState,
+        checkStatus: { check: true, checkMate: true },
+      };
+    } else {
+      console.log("ese");
+      return {
+        ...potentialState,
+        checkStatus: { check: true, checkMate: false },
+      };
+    }
+  } else return potentialState;
 };
+export const newGame = ()=>{
+return defaultData();
+}

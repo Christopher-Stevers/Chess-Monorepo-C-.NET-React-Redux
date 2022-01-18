@@ -4,6 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
 import * as BoardStore from '../store/Board';
 import BoardPlace from "./BoardPlace";
+import Button from "./Button"
 import "./Board.css";
 
 
@@ -27,7 +28,7 @@ class Board extends React.PureComponent<BoardProps> {
                 <p>Check? {this.props.checkStatus.check.toString()}</p>
                 <p>Checkmate? {this.props.checkStatus.checkMate.toString()}</p>
                 <p>{capitalize(this.props.turn.color)}{(this.props.win.color)? " already won.":`'s turn.`} </p>
-
+                  <Button  />
                   <div className="board">
                     {this.props.board.map((elem: any, outerIndex:number) => 
                         elem.map((innerElem: string, index: number) => <BoardPlace   currentPiece={this.props.currentPiece} turn={this.props.turn} title={innerElem} index={index} outerIndex={outerIndex} /> )

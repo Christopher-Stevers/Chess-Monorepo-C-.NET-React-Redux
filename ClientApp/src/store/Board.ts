@@ -3,8 +3,10 @@ import {
   showAllAvailableSpots,
   moveToAvailableSpot,
   tranformToPawn,
-  setWin
+  setWin,
+  newGame
 } from "./reducerFunctions";
+import defaultData from "./default"
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
 
@@ -33,6 +35,9 @@ export interface PawnTransform {
 export interface ShowWin {
   type: "SHOW_WIN";
 }
+export interface ReloadBoard {
+  type: "NEW_GAME";
+}
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
@@ -59,7 +64,13 @@ export const actionCreators = {
       payload,
     } as PawnTransform),
   showWin: (payload: string) => ({ type: "SHOW_WIN", payload }),
+  reloadBoard: (payload: string) =>
+    ({
+      type: "NEW_GAME",
+      payload,
+    } as ReloadBoard),
 };
+
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
@@ -70,351 +81,7 @@ export const reducer: Reducer<BoardState> = (
 ): BoardState => {
   if (state === undefined) {
     //inner index=row outerIndex=column
-    return {
-      currentPiece: { piece: "" },
-      turn: { color: "white" },
-      win: { color: "" },
-      checkStatus: {check: false,
-      checkMate: false},
-      board: [
-        [
-          {
-            piece: "rook",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "knight",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "bishop",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "queen",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "king",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "bishop",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "knight",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "rook",
-            color: "black",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "black",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-          {
-            piece: "",
-            color: "",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "pawn",
-            color: "white",
-            available: "no",
-          },
-        ],
-        [
-          {
-            piece: "rook",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "knight",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "bishop",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "queen",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "king",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "bishop",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "knight",
-            color: "white",
-            available: "no",
-          },
-          {
-            piece: "rook",
-            color: "white",
-            available: "no",
-          },
-        ],
-      ],
-    };
+    return defaultData();
   }
   const action = incomingAction;
   switch (action.type) {
@@ -422,6 +89,8 @@ export const reducer: Reducer<BoardState> = (
       return showAllAvailableSpots(state, action.payload);
     case "MOVE_TO_PLACE":
       return moveToAvailableSpot(state, action.payload);
+    case "NEW_GAME":
+      return newGame();
     case "PAWN_TRANSFORM":
       return tranformToPawn(state, action.payload);
     case "SHOW_WIN":

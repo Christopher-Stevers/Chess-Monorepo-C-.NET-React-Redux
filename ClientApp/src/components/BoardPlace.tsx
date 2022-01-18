@@ -25,7 +25,8 @@ const BoardPlace: FC<props> = ({
   showAvailable,
   moveToPlace,
   pawnTransform,
-  showWin
+  showWin,
+  
 }) => {
   const boardPieces: any = ["rook", "knight", "bishop", "queen"];
   if(title.piece==="king"&&title.color!==turn.color&&title.available==="yes"){
