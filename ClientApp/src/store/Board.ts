@@ -17,6 +17,7 @@ export interface BoardState {
   win: any;
   checkStatus: any;
   enpassant: any;
+  rookNotMoved: any;
 }
 
 // -----------------

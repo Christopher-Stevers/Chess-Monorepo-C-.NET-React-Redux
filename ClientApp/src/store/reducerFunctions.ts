@@ -84,6 +84,35 @@ const bishopMoves = (
   }
   return endArr;
 };
+const castleMoves = (
+  x: number,
+  y: number,
+  x1: any,
+  x2: any,
+  check: boolean,
+  rookNotMoved: any
+) => {
+  console.log(check, rookNotMoved, x2, x1);
+  if (check) {
+    return [];
+  }
+  const { lw, rw, lb, rb } = rookNotMoved;
+  const availableArr = [];
+  if (!lb && x1[0] === 0 && compareTuple([x, y], [4, 0])) {
+    availableArr.push([2, 0]);
+  }
+  if (!rb && x2[0] === 7 && compareTuple([x, y], [4, 0])) {
+    availableArr.push([6, 0]);
+  }
+  if (!lw && x1[0] === 0 && compareTuple([x, y], [4, 7])) {
+    availableArr.push([2, 7]);
+  }
+  if (!rw && x2[0] === 7 && compareTuple([x, y], [4, 7])) {
+    availableArr.push([6, 7]);
+  }
+
+  return availableArr;
+};
 const rookMoves = (
   x: number,
   y: number,
@@ -160,7 +189,9 @@ const availableMoves = (
   obstructionObject: any,
   attackDir: number,
   board: any,
-  enpassant: any
+  enpassant: any,
+  check: boolean,
+  rookNotMoved: any
 ) => {
   const { d1, d2, d3, d4, x1, y1, x2, y2 } = obstructionObject;
   switch (piece) {
@@ -175,7 +206,9 @@ const availableMoves = (
         bishopMoves(x, y, d1, d2, d3, d4)
       );
     case "king":
-      return kingMoves(x, y);
+      return kingMoves(x, y).concat(
+        castleMoves(x, y, x1, x2, check, rookNotMoved)
+      );
     case "knight":
       return knightMoves(x, y);
 
@@ -265,7 +298,9 @@ const checkForCheckMate = (newState: any) => {
       obstructionObject,
       attackDir,
       state.board,
-      state.enpassant.array
+      state.enpassant.array,
+      state.checkStatus.check,
+      state.rookNotMoved
     );
     const potentialState = {
       ...state,
@@ -370,7 +405,9 @@ export const showAllAvailableSpots = (
     obstructionObject,
     attackDir,
     state.board,
-    state.enpassant.array
+    state.enpassant.array,
+    state.checkStatus.check,
+    state.rookNotMoved
   );
   const potentialState = {
     ...state,
@@ -461,17 +498,45 @@ export const returnAvailableState = (state: any, payload: [number, number]) => {
           ? payload
           : [],
     },
-    rookMoved: {
-      leftWhite: false,
-      leftBlack: false,
-      rightWhite: false,
-      rightBlack: false,
+    rookNotMoved: {
+      lw:
+        state.rookNotMoved.lw ||
+        ((state.currentPiece.x === 0 || state.currentPiece.x === 4) &&
+          state.currentPiece.y === 0),
+      rw:
+        state.rookNotMoved.rw ||
+        ((state.currentPiece.x === 7 || state.currentPiece.x === 4) &&
+          state.currentPiece.y === 0),
+
+      lb:
+        state.rookNotMoved.lb ||
+        ((state.currentPiece.x === 0 || state.currentPiece.x === 4) &&
+          state.currentPiece.y === 7),
+      rb:
+        state.rookNotMoved.rb ||
+        ((state.currentPiece.x === 7 || state.currentPiece.x === 4) &&
+          state.currentPiece.y === 7),
     },
     board: state.board.map((elem: any, index: number) =>
       elem.map((innerElem: any, innerIndex: number) => {
         // Check if we can move there.
-        console.log(state.enpassant.array[0] - 1, y - attackDir);
-        console.log(state.enpassant.array);
+        if (
+          innerElem.piece === "rook" &&
+          innerElem.piece.color === state.turn.color
+        ) {
+          if (state.currentPiece.piece === "king") {
+            if (
+              (innerIndex === 0 && state.currentPiece.x === x + 2) ||
+              (innerIndex === 7 && state.currentPiece.x === x - 2)
+            ) {
+              return {
+                color: "",
+                piece: "",
+                available: "no",
+              };
+            }
+          }
+        }
         if (
           x === state.enpassant.array[0] &&
           y - attackDir === state.enpassant.array[1] &&

@@ -3,6 +3,13 @@ export default function defaultData() {
         currentPiece: { piece: ""},
         turn: { color: "white" },
         win: { color: "" },
+        rookNotMoved: {
+            lw: false,
+            rw: false,
+            lb: false,
+            rb: false
+
+        },
         enpassant: {array: []},
         checkStatus: {
             check: false,
