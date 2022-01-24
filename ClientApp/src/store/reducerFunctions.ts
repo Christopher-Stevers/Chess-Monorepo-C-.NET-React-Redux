@@ -1,4 +1,4 @@
-import defaultData from './default'
+import defaultData from "./default";
 const withinBoard = (x: number) => {
   return 0 <= x && x <= 7;
 };
@@ -99,7 +99,7 @@ const rookMoves = (
     i++;
   }
   let j = y1;
-  while (j <=y2) {
+  while (j <= y2) {
     if (y !== j) availableArr.push([x, j]);
     j++;
   }
@@ -126,12 +126,19 @@ const pawnMoves = (
   d3: number,
   d4: number,
   y1: any,
-  y2: any
+  y2: any,
+  enpassant: any
 ) => {
   const availableArr = [];
   const obstruct = attackDir < 0 ? y1[1] : y2[1];
   const leftDiOb = attackDir < 0 ? d4 : d3;
   const rightDiOb = attackDir < 0 ? d2 : d1;
+  if (
+    (x - 1 === enpassant[0] || x + 1 === enpassant[0]) &&
+    y === enpassant[1]
+  ) {
+    availableArr.push([enpassant[0], enpassant[1] + attackDir]);
+  }
   if (y + attackDir !== obstruct) {
     availableArr.push([x, y + attackDir]);
     if (y + 2 * attackDir !== obstruct && (y === 1 || y === 6)) {
@@ -152,12 +159,13 @@ const availableMoves = (
   piece: string,
   obstructionObject: any,
   attackDir: number,
-  board: any
+  board: any,
+  enpassant: any
 ) => {
   const { d1, d2, d3, d4, x1, y1, x2, y2 } = obstructionObject;
   switch (piece) {
     case "pawn":
-      return pawnMoves(x, y, attackDir, d1, d2, d3, d4, y1, y2);
+      return pawnMoves(x, y, attackDir, d1, d2, d3, d4, y1, y2, enpassant);
     case "bishop":
       return bishopMoves(x, y, d1, d2, d3, d4);
     case "rook":
@@ -189,7 +197,18 @@ const checkForCheck = (state: any, payload: any) => {
   const rookKing = rookMoves(x, y, x1[0], y1[1], x2[0], y2[1]);
   const bishopKing = bishopMoves(x, y, d1, d2, d3, d4);
   const knightKing = knightMoves(x, y);
-  const pawnKing = pawnMoves(x, y, attackDir, d1, d2, d3, d4, y1, y2);
+  const pawnKing = pawnMoves(
+    x,
+    y,
+    attackDir,
+    d1,
+    d2,
+    d3,
+    d4,
+    y1,
+    y2,
+    state.enpassant.array
+  );
   const myForEach = (testingArr: any, testingPiece: any) => {
     let inDanger = false;
     testingArr.forEach((elem: any, index: number) => {
@@ -245,7 +264,8 @@ const checkForCheckMate = (newState: any) => {
       piece,
       obstructionObject,
       attackDir,
-      state.board
+      state.board,
+      state.enpassant.array
     );
     const potentialState = {
       ...state,
@@ -321,8 +341,7 @@ const checkForCheckMate = (newState: any) => {
             }
           );
           return potentialBoardHasNonChecks;
-        }
-        else return false
+        } else return false;
       });
     }
   );
@@ -334,7 +353,7 @@ export const showAllAvailableSpots = (
   state: any,
   payload: [number, number]
 ) => {
-  if(state.board.checkMate){
+  if (state.board.checkMate) {
     return state;
   }
   const [x, y] = payload;
@@ -350,7 +369,8 @@ export const showAllAvailableSpots = (
     piece,
     obstructionObject,
     attackDir,
-    state.board
+    state.board,
+    state.enpassant.array
   );
   const potentialState = {
     ...state,
@@ -431,10 +451,40 @@ export const showAllAvailableSpots = (
 export const returnAvailableState = (state: any, payload: [number, number]) => {
   //payload is target boardPlace
   const [x, y] = payload;
+  const attackDir = state.turn.color === "black" ? 1 : -1;
   return {
+    enpassant: {
+      array:
+        (state.currentPiece.piece === "pawn" &&
+          state.currentPiece.y === y + 2) ||
+        state.currentPiece.y === y - 2
+          ? payload
+          : [],
+    },
+    rookMoved: {
+      leftWhite: false,
+      leftBlack: false,
+      rightWhite: false,
+      rightBlack: false,
+    },
     board: state.board.map((elem: any, index: number) =>
       elem.map((innerElem: any, innerIndex: number) => {
         // Check if we can move there.
+        console.log(state.enpassant.array[0] - 1, y - attackDir);
+        console.log(state.enpassant.array);
+        if (
+          x === state.enpassant.array[0] &&
+          y - attackDir === state.enpassant.array[1] &&
+          innerIndex === state.enpassant.array[0] &&
+          index === state.enpassant.array[1]
+        ) {
+          console.log([innerIndex, index]);
+          return {
+            color: "",
+            piece: "",
+            available: "no",
+          };
+        }
         if (innerElem.available === "yes" && index === y && innerIndex === x) {
           //Handle pawn grow up
           if (
@@ -467,7 +517,7 @@ export const returnAvailableState = (state: any, payload: [number, number]) => {
   };
 };
 export const moveToAvailableSpot = (state: any, payload: any) => {
-  if(state.board.checkMate){
+  if (state.board.checkMate) {
     return state;
   }
   const potentialState = returnAvailableState(state, payload);
@@ -495,6 +545,6 @@ export const moveToAvailableSpot = (state: any, payload: any) => {
     }
   } else return potentialState;
 };
-export const newGame = ()=>{
-return defaultData();
-}
+export const newGame = () => {
+  return defaultData();
+};

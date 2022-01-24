@@ -3,6 +3,7 @@ export default function defaultData() {
         currentPiece: { piece: ""},
         turn: { color: "white" },
         win: { color: "" },
+        enpassant: {array: []},
         checkStatus: {
             check: false,
             checkMate: false,

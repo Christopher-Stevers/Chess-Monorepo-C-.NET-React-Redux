@@ -15,7 +15,8 @@ export interface BoardState {
   currentPiece: any;
   turn: any;
   win: any;
-  checkStatus: any
+  checkStatus: any;
+  enpassant: any;
 }
 
 // -----------------
@@ -38,6 +39,7 @@ export interface ShowWin {
 export interface ReloadBoard {
   type: "NEW_GAME";
 }
+
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
