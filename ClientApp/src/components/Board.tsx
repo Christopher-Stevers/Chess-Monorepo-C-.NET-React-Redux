@@ -27,8 +27,7 @@ class Board extends React.PureComponent<BoardProps> {
                 <h1>Board</h1>
                 <p>Check? {this.props.checkStatus.check.toString()}</p>
                 <p>Checkmate? {this.props.checkStatus.checkMate.toString()}</p>
-                <p>{JSON.stringify(this.props.rookNotMoved)}</p>
-                <p>{capitalize(this.props.turn.color)}{(this.props.win.color)? " already won.":`'s turn.`} </p>
+                <p>{capitalize(this.props.turn.color)}{`'s turn.`} </p>
                   <Button  />
                   <div className="board">
                     {this.props.board.map((elem: any, outerIndex:number) => 

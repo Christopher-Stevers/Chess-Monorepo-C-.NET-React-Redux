@@ -28,7 +28,7 @@ const scanObstruct = (state: any, payload: any) => {
         state.board[currentY][currentX],
     ];
   };
-  
+
   //create object showing where obstructions are hit on each direction and diagonal.
   return {
     x1: scanIndie(-1, 0),
@@ -110,18 +110,19 @@ const potentialStateAndChecks = (state: any, payload: [number, number]) => {
         if (checkForCheck(potentialBoardState, [testingX, testingY])) {
           checkArr.push(attackArr);
         }
-        if(piece==="king"&&Math.abs(x-attackArr[0])===2){
-          const passThroughCheck=checkArr.some((elem)=>{
-            if(elem[0]===3&&attackArr[0]===2){
+        if (piece === "king" && Math.abs(x - attackArr[0]) === 2) {
+          const passThroughCheck = checkArr.some((elem) => {
+            if (elem[0] === 3 && attackArr[0] === 2) {
               return true;
             }
-            if(elem[0]===5&&attackArr[0]===6){
-              return true
+            if (elem[0] === 5 && attackArr[0] === 6) {
+              return true;
             }
             return false;
           });
-          if(passThroughCheck&&(attackArr[0]===2||attackArr[0]===6)){
-          checkArr.push(attackArr);}
+          if (passThroughCheck && (attackArr[0] === 2 || attackArr[0] === 6)) {
+            checkArr.push(attackArr);
+          }
         }
       }
     }
@@ -368,15 +369,16 @@ export const setWin = (state: any, payload: string) => {
   return { ...state, win: { color: payload } };
 };
 const checkForCheckMate = (newState: any) => {
-  
   const areThereSomeAvailableSpots = newState.board.some(
     (elem: any, index: number) => {
       //are there any boards with possilbe non checks.
       return elem.some((innerElem: any, innerIndex: number) => {
         if (innerElem.color === newState.turn.color) {
-          const [potentialState, potentialCheckArr] =
-            potentialStateAndChecks(newState, [innerIndex, index]);
-            
+          const [potentialState, potentialCheckArr] = potentialStateAndChecks(
+            newState,
+            [innerIndex, index]
+          );
+
           //are there any non-checks on that possible board?
           const potentialBoardHasNonChecks = potentialState.board.some(
             (elem: any, index: number) => {
@@ -415,9 +417,8 @@ export const showAllAvailableSpots = (
   //execute scanObstruct
   const obstructionObject = scanObstruct(state, payload);
   const attackDir = color === "black" ? 1 : -1;
-  
-  
-  const [potentialState, checks]=potentialStateAndChecks(state,payload);
+
+  const [potentialState, checks] = potentialStateAndChecks(state, payload);
   /*
   const possibleAttacks = availableMoves(
     x,
@@ -569,18 +570,18 @@ export const returnAvailableState = (state: any, payload: [number, number]) => {
             available: "no",
           };
         }
-        if(state.currentPiece.piece === "king"  &&
-        index===y&&
-        ((innerIndex === 3 && state.currentPiece.x === x + 2) ||
-          (innerIndex === 5 && state.currentPiece.x === x - 2))){
-            
+        if (
+          state.currentPiece.piece === "king" &&
+          index === y &&
+          ((innerIndex === 3 && state.currentPiece.x === x + 2) ||
+            (innerIndex === 5 && state.currentPiece.x === x - 2))
+        ) {
           return {
             color: state.turn.color,
             piece: "rook",
             available: "no",
           };
-
-          }
+        }
         if (
           x === state.enpassant.array[0] &&
           y - attackDir === state.enpassant.array[1] &&
